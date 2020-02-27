@@ -56,22 +56,28 @@ func main() {
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 	
 	// If the message begings with the string "!rep" reply with a
-	// message saying a command was received.
+	// message saying a command was received and send a message
+	// notifying each user that was given rep.
 	matched, err := regexp.MatchString(`^!rep`, m.Content)
 
 	if err != nil {
 		fmt.Println("error processing regexp,", err)
 		return
 	}
+
+	
 	
 	if matched == true {
 		s.ChannelMessageSend(m.ChannelID, "Somebody sent me a command.")
+
+		for _, user := range m.Mentions {
+			s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!") 
+		}
 	}
 }
 
