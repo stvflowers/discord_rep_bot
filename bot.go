@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 	"regexp"
+	"io/ioutil"
 	
 	"github.com/bwmarrin/discordgo"
 )
@@ -70,14 +71,32 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	
-	
+
 	if matched == true {
 		s.ChannelMessageSend(m.ChannelID, "Somebody sent me a command.")
 
 		for _, user := range m.Mentions {
-			s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!") 
+			s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!")
+
+			// Add rep in database. Create database entry for mentioned user, if none exists.
+			func 
 		}
 	}
 }
 
+// Function for checking existence of string in a file (database).
+// Function returns a simple boolean value.
+func StringExists(str, filepath string) bool {
+	file, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		fmt.Println("error reading file,", err)
+		return
+	}
+
+	stringExists, err := regexp.Match(str, file)
+	if err != nil {
+		fmt.Println("error matching string", err)
+		return
+	}
+	return stringExists
+}
