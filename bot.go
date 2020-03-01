@@ -100,17 +100,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				// Replace old rep value with new rep value for user, in database.
 			} else {
 				// Create new entry for user, in database, and give 1 rep to user.
-				f, err := os.OpenFile(database, os.O_APPEND|os.O_WRONLY, 0600)
-				if err != nil {
-					fmt.Println("error opening database file,", err)
-					return
-				}
-
-				defer f.Close()
-
-				if _, err = f.WriteString(user.String()+`=1`); err != nil {
-					fmt.Println("error writing to database", err)
-					return
+				
 				}
 			}
 
@@ -133,4 +123,20 @@ func StringExists(str, filepath string) (bool, error) {
 		return false, err
 	}
 	return stringExists, err
+}
+
+// Function for appending a string to a file.
+func AppendStringToFile(str, filepath string) error {
+	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, 0600)
+
+	if err != nil {
+		fmt.Println("error opening file,", err)
+		return err
+	}
+	
+	defer f.Close()
+	if _, err = f.WriteString(str); err != nil {
+		fmt.Println("error writing to file,", err)
+		return err
+	}
 }
