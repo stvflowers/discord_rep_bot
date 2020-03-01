@@ -91,7 +91,13 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			if stringExists == true {
-				// Increment rep of user, in databse, by 1
+				// Increment rep of user, in databse, by 1.
+
+				// Get rep value for user from database.
+
+				// Increment rep value for user by 1.
+
+				// Replace old rep value with new rep value for user, in database.
 			} else {
 				// Create new entry for user, in database, and give 1 rep to user.
 				f, err := os.OpenFile(database, os.O_APPEND|os.O_WRONLY, 0600)
