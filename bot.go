@@ -86,17 +86,17 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 // Function for checking existence of string in a file (database).
 // Function returns a simple boolean value.
-func StringExists(str, filepath string) bool {
+func StringExists(str, filepath string) (bool, error) {
 	file, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		fmt.Println("error reading file,", err)
-		return
+		return false, err
 	}
 
 	stringExists, err := regexp.Match(str, file)
 	if err != nil {
 		fmt.Println("error matching string", err)
-		return
+		return false, err
 	}
-	return stringExists
+	return stringExists, err
 }
