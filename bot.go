@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"
+	"flag"p
 	"fmt"
 	"os"
 	"os/signal"
@@ -79,7 +79,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!")
 
 			// Add rep in database. Create database entry for mentioned user, if none exists.
-			
+			stringExists, err := StringExists(user.String(), `database.txt`)
+
+			if err != nil {
+				fmt.Println("error checking existence of user in database,", err)
+				return
+			}
+
+			if stringExists == true {
+				// Increment rep of user, in databse, by 1
+			} else {
+				// Create new entry for user, in database, and increment rep by 1
+			}
+
 		}
 	}
 }
