@@ -78,8 +78,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		for _, user := range m.Mentions {
 			s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!")
 
+			// Declaring variable for database filename
+			var database string
+			database = `database.txt`
+			
 			// Add rep in database. Create database entry for mentioned user, if none exists.
-			stringExists, err := StringExists(user.String(), `database.txt`)
+			stringExists, err := StringExists(user.String(), database)
 
 			if err != nil {
 				fmt.Println("error checking existence of user in database,", err)
@@ -90,6 +94,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				// Increment rep of user, in databse, by 1
 			} else {
 				// Create new entry for user, in database, and increment rep by 1
+				
 			}
 
 		}
