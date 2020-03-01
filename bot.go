@@ -93,7 +93,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if stringExists == true {
 				// Increment rep of user, in databse, by 1
 			} else {
-				// Create new entry for user, in database, and increment rep by 1
+				// Create new entry for user, in database, and give 1 rep to user.
 				f, err := os.OpenFile(database, os.O_APPEND|os.O_WRONLY, 0600)
 				if err != nil {
 					fmt.Println("error opening database file,", err)
