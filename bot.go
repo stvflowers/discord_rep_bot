@@ -1,7 +1,7 @@
 package main
 
 import (
-	"flag"p
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -94,7 +94,18 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				// Increment rep of user, in databse, by 1
 			} else {
 				// Create new entry for user, in database, and increment rep by 1
-				
+				f, err := os.OpenFile(database, os.O_APPEND|os.O_WRONLY, 0600)
+				if err != nil {
+					fmt.Println("error opening database file,", err)
+					return
+				}
+
+				defer f.Close()
+
+				if _, err = f.WriteString(user.String()+`=1`); err != nil {
+					fmt.Println("error writing to database", err)
+					return
+				}
 			}
 
 		}
