@@ -79,7 +79,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!")
 
 			// Add rep in database. Create database entry for mentioned user, if none exists.
-			func 
+			
 		}
 	}
 }
