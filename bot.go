@@ -64,6 +64,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// If the message begings with the string "!rep" reply with a
 	// message saying a command was received and send a message
 	// notifying each user that was given rep.
+	// Check if message is a command to the bot or not.
 	matched, err := regexp.MatchString(`^!rep`, m.Content)
 
 	if err != nil {
@@ -83,6 +84,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			database = `database.txt`
 			
 			// Add rep in database. Create database entry for mentioned user, if none exists.
+			// Check if user exists in database. Note String() function format.
 			stringExists, err := StringExists(user.String(), database)
 
 			if err != nil {
@@ -100,7 +102,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				// Replace old rep value with new rep value for user, in database.
 			} else {
 				// Create new entry for user, in database, and give 1 rep to user.
-				
+				err := AppendStringToFile(user.String()+`=1`, database)
+
+				if err != nil {
+					fmt.Println("error creating new entry for user "+user.String()+" in databse,", err)
+					return
+				}
 				}
 			}
 
@@ -128,13 +135,13 @@ func StringExists(str, filepath string) (bool, error) {
 // Function for appending a string to a file.
 func AppendStringToFile(str, filepath string) error {
 	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, 0600)
-
+	defer f.Close()
+	
 	if err != nil {
 		fmt.Println("error opening file,", err)
 		return err
 	}
 	
-	defer f.Close()
 	if _, err = f.WriteString(str); err != nil {
 		fmt.Println("error writing to file,", err)
 		return err
