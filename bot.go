@@ -147,3 +147,10 @@ func AppendStringToFile(str, filepath string) error {
 		return err
 	}
 }
+
+// Function to replace lines, in a specified file, matching
+// a specified regex with a specified string.  Note: get
+// specified string by extracting rep of user before
+// carrying out this function. That way this function can
+// remain abstract as I'm not bending it to fit a
+// particular use-case.
