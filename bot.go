@@ -8,6 +8,8 @@ import (
 	"syscall"
 	"regexp"
 	"io/ioutil"
+	"strconv"
+	"strings"
 	
 	"github.com/bwmarrin/discordgo"
 )
@@ -94,12 +96,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 			if stringExists == true {
 				// Increment rep of user, in databse, by 1.
-
 				// Get rep value for user from database.
-
 				// Increment rep value for user by 1.
-
 				// Replace old rep value with new rep value for user, in database.
+				dbentry := user.String()
+				err := UpdateRep(dbentry, database)
+				if err != nil {
+					fmt.Println("error updating rep,", err)
+					return
+				}
 			} else {
 				// Create new entry for user, in database, and give 1 rep to user.
 				err := AppendStringToFile(user.String()+`=1`, database)
@@ -111,7 +116,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				}
 			}
 
-		}
 	}
 }
 
@@ -146,19 +150,60 @@ func AppendStringToFile(str, filepath string) error {
 		fmt.Println("error writing to file,", err)
 		return err
 	}
+	
+	return err
 }
 
-// Function to replace lines, in a specified file, matching
-// a specified regex with a specified string.  Note: get
-// specified string by extracting rep of user before
-// carrying out this function. That way this function can
-// remain abstract as I'm not bending it to fit a
-// particular use-case.
-
-// Function to look for a line matching a regex in a file
-// and give matching line as output.
-
 // Function for reading a file line-by-line and doing an
-// operation on lines matching a specified regex. The
-// operation to be performed is a function to be specified
-// as an argument.
+// operation on lines containing a specified string.
+func UpdateRep(dbentry, file string) error {
+	input, err := ioutil.ReadFile(file)
+	
+	if err != nil {
+		fmt.Println("error reading file,", err)
+		return err
+	}
+	
+	lines := strings.Split(string(input), "\n")
+	
+	for i, line := range lines {
+		// Check if line matches dbentry.
+		if strings.Contains(line, dbentry) == true {
+			// Increment rep by 1.
+			// uhd: username#discriminator
+			re0 := regexp.MustCompile(`^[^=]+`)
+			uhd := re0.FindString(line)
+			
+			// old rep
+			re1 := regexp.MustCompile(`[^=]+$`)
+			oldRep := re1.FindString(line)
+			
+			// convert to int
+			oldRepInt, err := strconv.ParseInt(oldRep, 10, 64)
+			if err != nil {
+				fmt.Println("error converting string to int,", err)
+				return err
+			}
+			
+			// Increment rep
+			var newRepInt int64
+			newRepInt = oldRepInt + 1
+			
+			// convert back to string
+			var newRepStr string
+			newRepStr = strconv.FormatInt(newRepInt, 10)
+			
+			// replace line with updated entry
+			lines[i] = uhd+"="+newRepStr
+		}
+	}
+	
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile(file, []byte(output), 0644)
+	if err != nil {
+		fmt.Println("error writing file,", err)
+		return err
+	}
+
+	return err
+}
