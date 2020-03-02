@@ -154,3 +154,11 @@ func AppendStringToFile(str, filepath string) error {
 // carrying out this function. That way this function can
 // remain abstract as I'm not bending it to fit a
 // particular use-case.
+
+// Function to look for a line matching a regex in a file
+// and give matching line as output.
+
+// Function for reading a file line-by-line and doing an
+// operation on lines matching a specified regex. The
+// operation to be performed is a function to be specified
+// as an argument.
