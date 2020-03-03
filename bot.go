@@ -245,4 +245,5 @@ func GetUserRep (uhd, database string) (string, error) {
 			
 			return rep, err
 		}
+	}
 }
