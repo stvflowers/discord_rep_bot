@@ -110,7 +110,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 					return
 				}
 				
-				rep, err := GetUserRep(dbentry, databse)
+				rep, err := GetUserRep(dbentry, database)
 
 				if err != nil {
 					fmt.Println("error getting user rep from database,", err)
@@ -224,7 +224,7 @@ func UpdateRep(dbentry, file string) error {
 
 // Function for getting rep of a specific user
 // uhd: username#descriptor
-func GetUserRep (uhd, database string) (string, error) {
+func GetUserRep(uhd, database string) (string, error) {
 	// Find line containing string uhd in database
 	input, err := ioutil.ReadFile(database)
 	
@@ -235,15 +235,17 @@ func GetUserRep (uhd, database string) (string, error) {
 	
 	lines := strings.Split(string(input), "\n")
 	
-	for i, line := range lines {
+	for _, line := range lines {
 		// Check for uhd in database.
-		if strings.Contains(line, uhd) == true {
-
-			// Assign rep to a variable
-			re := regexp.MustCompile(`[^=]+$`)
-			rep := re.FindString(line)
-			
-			return rep, err
-		}
+			if strings.Contains(line, uhd) == true {
+				
+				// Assign rep to a variable
+				re := regexp.MustCompile(`[^=]+$`)
+				rep := re.FindString(line)
+				
+				return rep, err
+			}
 	}
+	
+	return "no dbentry found", err
 }
