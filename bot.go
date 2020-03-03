@@ -66,6 +66,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// If the message begings with the string "!rep" reply with a
 	// message saying a command was received and send a message
 	// notifying each user that was given rep.
+	
 	// Check if message is a command to the bot or not.
 	matched, err := regexp.MatchString(`^!rep`, m.Content)
 
@@ -79,7 +80,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, "Somebody sent me a command.")
 
 		for _, user := range m.Mentions {
-			s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!")
+			// s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!")
 
 			// Declaring variable for database filename
 			var database string
@@ -99,12 +100,25 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				// Get rep value for user from database.
 				// Increment rep value for user by 1.
 				// Replace old rep value with new rep value for user, in database.
+
+				// Variable for username#discriminator in db.
 				dbentry := user.String()
 				err := UpdateRep(dbentry, database)
+				
 				if err != nil {
 					fmt.Println("error updating rep,", err)
 					return
 				}
+				
+				rep, err := GetUserRep(dbentry, databse)
+
+				if err != nil {
+					fmt.Println("error getting user rep from database,", err)
+					return
+				}
+
+				// Notification for user saying that user got rep and how much rep they now have.
+				s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you now have "+rep+" rep!")
 			} else {
 				// Create new entry for user, in database, and give 1 rep to user.
 				err := AppendStringToFile(user.String()+`=1`, database)
@@ -206,4 +220,29 @@ func UpdateRep(dbentry, file string) error {
 	}
 
 	return err
+}
+
+// Function for getting rep of a specific user
+// uhd: username#descriptor
+GetUserRep (uhd, database string) (string, error) {
+	// Find line containing string uhd in database
+	input, err := ioutil.ReadFile(database)
+	
+	if err != nil {
+		fmt.Println("error reading file,", err)
+		return "", err
+	}
+	
+	lines := strings.Split(string(input), "\n")
+	
+	for i, line := range lines {
+		// Check for uhd in database.
+		if strings.Contains(line, uhd) == true {
+
+			// Assign rep to a variable
+			re := regexp.MustCompile(`[^=]+$`)
+			rep := re.FindString(line)
+			
+			return rep, err
+		}
 }
