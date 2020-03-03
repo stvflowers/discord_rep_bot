@@ -224,7 +224,7 @@ func UpdateRep(dbentry, file string) error {
 
 // Function for getting rep of a specific user
 // uhd: username#descriptor
-GetUserRep (uhd, database string) (string, error) {
+func GetUserRep (uhd, database string) (string, error) {
 	// Find line containing string uhd in database
 	input, err := ioutil.ReadFile(database)
 	
