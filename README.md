@@ -1,5 +1,8 @@
 **SETUP**
 
+We're assuming that the user already knows how to set up a
+bot on Discord's developer portal.
+
 Build the bot's binary file with:
 ```
 $ go build bot.go
