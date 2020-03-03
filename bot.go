@@ -86,6 +86,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			// Declaring variable for database filename
 			var database string
 			database = `database.txt`
+			// Variable for username#discriminator in db.
+			dbentry := user.String()
 			
 			// Add rep in database. Create database entry for mentioned user, if none exists.
 			// Check if user exists in database. Note String() function format.
@@ -102,17 +104,13 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				// Increment rep value for user by 1.
 				// Replace old rep value with new rep value for user, in database.
 
-				// Variable for username#discriminator in db.
-				dbentry := user.String()
 				err := UpdateRep(dbentry, database)
-				
 				if err != nil {
 					fmt.Println("error updating rep,", err)
 					return
 				}
 				
 				rep, err := GetUserRep(dbentry, database)
-
 				if err != nil {
 					fmt.Println("error getting user rep from database,", err)
 					return
@@ -123,13 +121,21 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			} else {
 				// Create new entry for user, in database, and give 1 rep to user.
 				err := AppendStringToFile(user.String()+`=1`, database)
-
 				if err != nil {
 					fmt.Println("error creating new entry for user "+user.String()+" in databse,", err)
 					return
 				}
+				
+				
+				rep, err := GetUserRep(dbentry, database)
+				if err != nil {
+					fmt.Println("error getting user rep from database,", err)
+					return
 				}
+				
+				s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you now have "+rep+" rep!")
 			}
+		}
 
 	}
 }
