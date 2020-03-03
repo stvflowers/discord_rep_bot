@@ -79,6 +79,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if matched == true {
 		s.ChannelMessageSend(m.ChannelID, "Somebody sent me a command.")
 
+		// Give rep to each user mentioned in the message.
 		for _, user := range m.Mentions {
 			// s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you were given rep!")
 
