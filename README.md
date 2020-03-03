@@ -5,10 +5,11 @@ Build the bot's binary file with:
 $ go build bot.go
 ```
 
-In the same location that the bot's binary executalble is,
+In the same location that the bot's binary executable is,
 ensure that you create a plaintext file for the bot's
-databse called database.txt:
+database called database.txt. Example:
 ```
+$ cd BOT_BINARY_DIRECTORY
 $ touch database.txt
 ```
 
