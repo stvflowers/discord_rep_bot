@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
-	"syscall"
 	"regexp"
-	"io/ioutil"
 	"strconv"
 	"strings"
-	
+	"syscall"
+
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -28,7 +28,13 @@ func init() {
 func main() {
 
 	// Create a new Discord session using the provided bot token.
+
+	// debug only
+	//dg, err := discordgo.New("Bot " + "NjkxNjA1MzI2ODc2NjM5MzEy.Xn9_rA.gk3CLkA6TYzojgFhoAgLYsyOz08")
+
+	// normal
 	dg, err := discordgo.New("Bot " + Token)
+
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
@@ -62,19 +68,30 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	
+
 	// If the message begings with the string "!rep" reply with a
 	// message saying a command was received and send a message
 	// notifying each user that was given rep.
-	
+
 	// Check if message is a command to the bot or not.
 	matched, err := regexp.MatchString(`^!rep`, m.Content)
+
+	// debug
+	//fmt.Println(string(m.Content))
+
+	// Check if message is a Thanks to a user.
+	//thanks, err2 := regexp.MatchString(`(?i)ty @\w*|@\w* thank|thank you @\w*`, m.Content)
+	thanks, err2 := regexp.MatchString(`(?i)ty <@!\w*>|<@!\w*> thank|thank you <@!\w*>|thanks <@!\w*>`, m.Content)
 
 	if err != nil {
 		fmt.Println("error processing regexp,", err)
 		return
 	}
 
+	if err2 != nil {
+		fmt.Println("error processing regexp,", err)
+		return
+	}
 
 	if matched == true {
 		// s.ChannelMessageSend(m.ChannelID, "Somebody sent me a command.")
@@ -88,7 +105,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			database = `database.txt`
 			// Variable for username#discriminator in db.
 			dbentry := user.String()
-			
+
 			// Add rep in database. Create database entry for mentioned user, if none exists.
 			// Check if user exists in database. Note String() function format.
 			stringExists, err := StringExists(user.String(), database)
@@ -109,7 +126,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 					fmt.Println("error updating rep,", err)
 					return
 				}
-				
+
 				rep, err := GetUserRep(dbentry, database)
 				if err != nil {
 					fmt.Println("error getting user rep from database,", err)
@@ -120,22 +137,27 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you now have "+rep+" rep!")
 			} else {
 				// Create new entry for user, in database, and give 1 rep to user.
-				err := AppendStringToFile(user.String()+`=1`, database)
+				err := AppendStringToFile(user.String()+"=1\n", database)
 				if err != nil {
 					fmt.Println("error creating new entry for user "+user.String()+" in databse,", err)
 					return
 				}
-				
-				
+
 				rep, err := GetUserRep(dbentry, database)
 				if err != nil {
 					fmt.Println("error getting user rep from database,", err)
 					return
 				}
-				
+
 				s.ChannelMessageSend(m.ChannelID, "<@"+user.ID+">"+", you now have "+rep+" rep!")
 			}
 		}
+
+	}
+
+	if thanks == true {
+
+		s.ChannelMessageSend(m.ChannelID, "If someone helped you thank them by giving them rep points with the rep command.")
 
 	}
 }
@@ -161,17 +183,17 @@ func StringExists(str, filepath string) (bool, error) {
 func AppendStringToFile(str, filepath string) error {
 	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, 0600)
 	defer f.Close()
-	
+
 	if err != nil {
 		fmt.Println("error opening file,", err)
 		return err
 	}
-	
+
 	if _, err = f.WriteString(str); err != nil {
 		fmt.Println("error writing to file,", err)
 		return err
 	}
-	
+
 	return err
 }
 
@@ -179,14 +201,14 @@ func AppendStringToFile(str, filepath string) error {
 // operation on lines containing a specified string.
 func UpdateRep(dbentry, file string) error {
 	input, err := ioutil.ReadFile(file)
-	
+
 	if err != nil {
 		fmt.Println("error reading file,", err)
 		return err
 	}
-	
+
 	lines := strings.Split(string(input), "\n")
-	
+
 	for i, line := range lines {
 		// Check if line matches dbentry.
 		if strings.Contains(line, dbentry) == true {
@@ -194,31 +216,31 @@ func UpdateRep(dbentry, file string) error {
 			// uhd: username#discriminator
 			re0 := regexp.MustCompile(`^[^=]+`)
 			uhd := re0.FindString(line)
-			
+
 			// old rep
 			re1 := regexp.MustCompile(`[^=]+$`)
 			oldRep := re1.FindString(line)
-			
+
 			// convert to int
 			oldRepInt, err := strconv.ParseInt(oldRep, 10, 64)
 			if err != nil {
 				fmt.Println("error converting string to int,", err)
 				return err
 			}
-			
+
 			// Increment rep
 			var newRepInt int64
 			newRepInt = oldRepInt + 1
-			
+
 			// convert back to string
 			var newRepStr string
 			newRepStr = strconv.FormatInt(newRepInt, 10)
-			
+
 			// replace line with updated entry
-			lines[i] = uhd+"="+newRepStr
+			lines[i] = uhd + "=" + newRepStr
 		}
 	}
-	
+
 	output := strings.Join(lines, "\n")
 	err = ioutil.WriteFile(file, []byte(output), 0644)
 	if err != nil {
@@ -234,25 +256,25 @@ func UpdateRep(dbentry, file string) error {
 func GetUserRep(uhd, database string) (string, error) {
 	// Find line containing string uhd in database
 	input, err := ioutil.ReadFile(database)
-	
+
 	if err != nil {
 		fmt.Println("error reading file,", err)
 		return "", err
 	}
-	
+
 	lines := strings.Split(string(input), "\n")
-	
+
 	for _, line := range lines {
 		// Check for uhd in database.
-			if strings.Contains(line, uhd) == true {
-				
-				// Assign rep to a variable
-				re := regexp.MustCompile(`[^=]+$`)
-				rep := re.FindString(line)
-				
-				return rep, err
-			}
+		if strings.Contains(line, uhd) == true {
+
+			// Assign rep to a variable
+			re := regexp.MustCompile(`[^=]+$`)
+			rep := re.FindString(line)
+
+			return rep, err
+		}
 	}
-	
+
 	return "no dbentry found", err
 }
