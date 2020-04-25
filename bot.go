@@ -28,10 +28,6 @@ func init() {
 func main() {
 
 	// Create a new Discord session using the provided bot token.
-
-	// debug only
-	//dg, err := discordgo.New("Bot " + "NjkxNjA1MzI2ODc2NjM5MzEy.Xn9_rA.gk3CLkA6TYzojgFhoAgLYsyOz08")
-
 	// normal
 	dg, err := discordgo.New("Bot " + Token)
 
